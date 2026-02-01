@@ -4,6 +4,24 @@ import webbrowser
 from main import generer_edt
 from models.creneau import Creneau
 from services.optimiseur import Optimiseur
+ 
+def _normalize_salle_name(nom_salle):
+    try:
+        with open("data/salles.json", "r", encoding="utf-8") as f:
+            salles = json.load(f)
+        # Exact match
+        for s in salles:
+            if s.get("nom", "").strip().lower() == nom_salle.strip().lower():
+                return s["nom"]
+        # Suffix/contains match (ex: "F11" -> "Salle F11")
+        for s in salles:
+            full = s.get("nom", "").strip().lower()
+            token = nom_salle.strip().lower()
+            if token and (full.endswith(token) or token in full):
+                return s["nom"]
+    except:
+        pass
+    return nom_salle
 
 # Global state
 SEANCES = []
@@ -224,6 +242,8 @@ def gerer_demandes():
             
             if action == 'v':
                 # Move to reservations.json
+                # Normalize salle name to match data set
+                d["salle"] = _normalize_salle_name(d.get("salle", ""))
                 with open("data/reservations.json", "r", encoding="utf-8") as f:
                     res_data = json.load(f)
                 res_data.append(d)

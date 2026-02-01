@@ -165,7 +165,8 @@ function render(){{
 }}
 [fE,fG,fS,fJ,fT,fQ].forEach(e=>e.onchange=e.oninput=render);
 document.getElementById('btn_reset').onclick=()=>{{[fE,fG,fS,fJ,fT].forEach(x=>x.value='');fQ.value='';render()}};
-render();
+        render();
+        try {{ setInterval(()=>location.reload(),20000); }} catch(e) {{}}
 </script></body></html>"""
         
         with open(path, "w", encoding="utf-8") as f:

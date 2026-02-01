@@ -1,3 +1,2 @@
-Flask>=2.2
-flask-cors>=3.0
-Flask-SQLAlchemy>=3.0
+# Aucun framework web n'est nécessaire pour la version console
+# openpyxl # (Optionnel pour export Excel natif, sinon CSV suffit)

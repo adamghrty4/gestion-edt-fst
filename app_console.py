@@ -35,8 +35,7 @@ def menu_principal():
         elif choix == "2":
             menu_enseignant()
         elif choix == "3":
-            load_data()
-            input("\nAppuyez sur Entrée pour continuer...")
+            menu_admin()
         elif choix == "0":
             break
 
@@ -133,13 +132,17 @@ def ajouter_reservation():
     }
 
     try:
-        with open("data/reservations.json", "r", encoding="utf-8") as f:
+        # Envoyer dans la file d'attente admin
+        filepath = "data/demandes_reservations.json"
+        if not os.path.exists(filepath):
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump([], f)
+        with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
         data.append(nouvelle_res)
-        with open("data/reservations.json", "w", encoding="utf-8") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
-        print("✅ Demande enregistrée ! Mise à jour du système en cours...")
-        load_data() # Regenerate
+        print("✅ Demande envoyée à l'administrateur pour validation !")
     except Exception as e:
         print(f"Erreur: {e}")
     
@@ -170,6 +173,149 @@ def ajouter_indisponibilite():
     except Exception as e:
         print(f"Erreur: {e}")
     
+    input("\nAppuyez sur Entrée pour continuer...")
+
+def menu_admin():
+    while True:
+        clear_screen()
+        print("--- ⚙️  ESPACE ADMINISTRATEUR ---")
+        print("1. 🔄 Forcer la mise à jour de l'EDT (Régénérer)")
+        print("2. 📊 Voir les statistiques globales")
+        print("3. ✅ Gérer les demandes de réservation en attente")
+        print("4. 🗑️  Réinitialiser les données (Réservations/Indispos)")
+        print("0. Retour")
+        choix = input("Choix : ")
+
+        if choix == "1":
+            load_data()
+            input("\nAppuyez sur Entrée pour continuer...")
+        elif choix == "2":
+            afficher_statistiques()
+        elif choix == "3":
+            gerer_demandes()
+        elif choix == "4":
+            reset_data()
+        elif choix == "0":
+            break
+
+def gerer_demandes():
+    print("\n--- ✅ Validation des Demandes ---")
+    try:
+        filepath = "data/demandes_reservations.json"
+        if not os.path.exists(filepath):
+            print("Aucune demande en attente.")
+            input("Entrée...")
+            return
+
+        with open(filepath, "r", encoding="utf-8") as f:
+            demandes = json.load(f)
+        
+        if not demandes:
+            print("Aucune demande en attente.")
+            input("Entrée...")
+            return
+
+        print(f"Il y a {len(demandes)} demande(s) en attente.")
+        for i, d in enumerate(demandes):
+            print(f"\n[{i+1}] {d['enseignant']} - {d['cours']} ({d['type']})")
+            print(f"    📅 {d['jour']} : {d['debut']} -> {d['fin']} | Salle: {d['salle']}")
+            
+            action = input("    👉 Action (v=Valider, r=Rejeter, i=Ignorer) : ").lower()
+            
+            if action == 'v':
+                # Move to reservations.json
+                with open("data/reservations.json", "r", encoding="utf-8") as f:
+                    res_data = json.load(f)
+                res_data.append(d)
+                with open("data/reservations.json", "w", encoding="utf-8") as f:
+                    json.dump(res_data, f, indent=4, ensure_ascii=False)
+                print("    ✅ Validée.")
+                demandes[i] = None # Mark for removal
+            
+            elif action == 'r':
+                print("    ❌ Rejetée.")
+                demandes[i] = None # Mark for removal
+            
+            else:
+                print("    ➡️ Ignorée.")
+
+        # Cleanup processed requests
+        demandes = [d for d in demandes if d is not None]
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(demandes, f, indent=4, ensure_ascii=False)
+            
+        print("\nTraitement terminé. Mise à jour du système...")
+        load_data()
+
+    except Exception as e:
+        print(f"Erreur : {e}")
+    
+    input("\nAppuyez sur Entrée pour continuer...")
+
+def afficher_statistiques():
+    print("\n--- 📊 Statistiques de l'Emploi du Temps ---")
+    if not SEANCES:
+        print("⚠️ Aucune donnée chargée. Veuillez d'abord générer l'EDT.")
+        input("Appuyez sur Entrée...")
+        return
+
+    try:
+        with open("data/cours.json", "r", encoding="utf-8") as f:
+            cours_data = json.load(f)
+        total_cours = len(cours_data)
+    except:
+        total_cours = 0
+
+    nb_seances = len(SEANCES)
+    taux = 0
+    if total_cours > 0:
+        taux = (nb_seances / total_cours) * 100
+    
+    print(f"Nombre de cours total (Data) : {total_cours}")
+    print(f"Nombre de séances planifiées : {nb_seances}")
+    print(f"Taux de couverture : {taux:.1f}%")
+    
+    salles_utilisees = set(s.salle.nom for s in SEANCES if s.salle)
+    print(f"Salles utilisées : {len(salles_utilisees)} / {len(SALLES)}")
+    
+    # Calcul Taux d'Occupation
+    print("\n--- Occupation des Salles (Top 5) ---")
+    occupation = {}
+    for s in SEANCES:
+        if s.salle:
+            nom = s.salle.nom
+            # Estimation durée (2h par défaut si calcul complexe)
+            duree = 2 
+            try:
+                h_debut = int(s.creneau.debut.split(':')[0])
+                h_fin = int(s.creneau.fin.split(':')[0])
+                duree = h_fin - h_debut
+            except:
+                pass
+            occupation[nom] = occupation.get(nom, 0) + duree
+
+    # Tri par occupation décroissante
+    sorted_salles = sorted(occupation.items(), key=lambda x: x[1], reverse=True)[:5]
+    for salle, heures in sorted_salles:
+        # Taux basé sur 50h/semaine (5 jours * 10h)
+        taux_salle = (heures / 50) * 100
+        print(f" - {salle} : {heures}h ({taux_salle:.0f}%)")
+
+    input("\nAppuyez sur Entrée pour continuer...")
+
+def reset_data():
+    print("\n--- 🗑️ Réinitialisation ---")
+    confirm = input("⚠️ Êtes-vous sûr de vouloir supprimer toutes les réservations et indisponibilités ajoutées ? (o/n) : ")
+    if confirm.lower() == 'o':
+        try:
+            with open("data/reservations.json", "w", encoding="utf-8") as f:
+                json.dump([], f)
+            with open("data/indisponibilites.json", "w", encoding="utf-8") as f:
+                json.dump([], f)
+            print("✅ Données remises à zéro.")
+            load_data()
+        except Exception as e:
+            print(f"Erreur : {e}")
     input("\nAppuyez sur Entrée pour continuer...")
 
 if __name__ == "__main__":

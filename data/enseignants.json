@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "nom": "Dr. Khalid",
+    "disponibilites": []
+  },
+  {
+    "id": 2,
+    "nom": "Mme. Aicha",
+    "disponibilites": []
+  },
+  {
+    "id": 3,
+    "nom": "Dr. Abdellatif El Hassani",
+    "disponibilites": []
+  },
+  {
+    "id": 4,
+    "nom": "Pr. Rachid Bennis",
+    "disponibilites": []
+  },
+  {
+    "id": 5,
+    "nom": "Mme. Sanae El Idrissi",
+    "disponibilites": []
+  }
+]

@@ -1,0 +1,12 @@
+[
+  { "jour": "Lundi", "debut": "08:00", "fin": "10:00" },
+  { "jour": "Lundi", "debut": "10:30", "fin": "12:30" },
+  { "jour": "Mardi", "debut": "09:00", "fin": "11:00" },
+  { "jour": "Mardi", "debut": "11:30", "fin": "13:30" },
+  { "jour": "Mercredi", "debut": "08:00", "fin": "10:00" },
+  { "jour": "Mercredi", "debut": "10:30", "fin": "12:30" },
+  { "jour": "Jeudi", "debut": "08:00", "fin": "10:00" },
+  { "jour": "Jeudi", "debut": "10:30", "fin": "12:30" },
+  { "jour": "Vendredi", "debut": "08:00", "fin": "10:00" },
+  { "jour": "Vendredi", "debut": "10:30", "fin": "12:30" }
+]

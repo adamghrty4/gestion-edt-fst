@@ -1,0 +1,7 @@
+[
+  { "nom": "AD", "effectif": 50, "preference": "matin" },
+  { "nom": "IDAI", "effectif": 45, "preference": "matin" },
+  { "nom": "GI", "effectif": 40, "preference": "apres-midi" },
+  { "nom": "ENR", "effectif": 48, "preference": "apres-midi" },
+  { "nom": "MIP", "effectif": 35, "preference": "matin" }
+]

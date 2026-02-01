@@ -1,0 +1,18 @@
+# Environnement virtuel
+.venv/
+venv/
+env/
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Fichiers générés (optionnel : on peut vouloir les versionner ou non, ici on ignore pour garder le repo propre)
+edt_final.html
+edt_final.csv
+edt_final.json
+
+# IDE
+.vscode/
+.idea/
+.DS_Store

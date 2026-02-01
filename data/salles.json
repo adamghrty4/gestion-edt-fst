@@ -1,0 +1,7 @@
+[
+  { "nom": "Salle F11", "capacite": 120, "equipements": ["projecteur", "wifi", "ordi"] },
+  { "nom": "Salle F14", "capacite": 80, "equipements": ["projecteur", "ordi"] },
+  { "nom": "Amphi 4", "capacite": 150, "equipements": ["projecteur", "son"] },
+  { "nom": "Salle E11", "capacite": 60, "equipements": ["projecteur", "ordi"] },
+  { "nom": "Salle B01", "capacite": 50, "equipements": ["projecteur"], "bloquees": [ { "jour": "Mercredi", "debut": "08:00", "fin": "10:00" } ] }
+]
